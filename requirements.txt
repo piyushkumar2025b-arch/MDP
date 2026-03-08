@@ -1,9 +1,1 @@
-streamlit>=1.32.0
-rdkit
-plotly>=5.18.0
-pandas
-numpy
-requests
-pillow
-stmol
-py3Dmol
+streamlit>=1.32.0`nrdkit`nplotly>=5.18.0`npandas`nnumpy`nrequests`npillow`npy3Dmol`nipywidgets==7.8.5`nstmol
