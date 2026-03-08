@@ -3543,7 +3543,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-if data:
+if data is not None and len(data) > 0:
     st.markdown("---")
     st.markdown("<h3 style='text-align:center; color:var(--gold)'> ANALYSIS COMPLETE</h3>", unsafe_allow_html=True)
     st.markdown("<p style='text-align:center; color:var(--muted)'>Researchers can download the full analytical dossier below.</p>", unsafe_allow_html=True)
