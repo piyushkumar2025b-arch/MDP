@@ -1,0 +1,8 @@
+name = "chemofilter-v1m"
+main = ".cloud/proxy_worker.js" 
+compatibility_date = "2026-03-07"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "chemofilter-db-v1m"
+database_id = "bdd4dc37-ae7e-4af9-9d8b-7ed50a14c450"
