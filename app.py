@@ -4,8 +4,8 @@
 """
 
 import streamlit as st
-import py3Dmol
-from stmol import showmol
+# py3Dmol disabled
+# stmol disabled
 import features_v15 as fx15
 import mega_features_v20 as fx20
 import quantum_accuracy_engine as qae
