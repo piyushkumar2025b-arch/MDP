@@ -121,7 +121,7 @@ def phase_ii_alerts(mol):
 def isomer_count_hint(mol):
     """Theoretical stereoisomer complexity."""
     centers = len(Chem.FindMolChiralCenters(mol, includeUnassigned=True))
-    db = len(mol.GetSubstructMatches(Chem.MolFromSmarts("/C=C/"))) + len(mol.GetSubstructMatches(Chem.MolFromSmarts("\\C=C\\")))
+    db = 0
     return 2 ** (centers + db)
 
 def bbb_v2_index(lp, tp, mw):
