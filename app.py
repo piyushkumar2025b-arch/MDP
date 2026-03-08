@@ -1775,7 +1775,11 @@ with st.sidebar.expander("SCIENTIFIC REFERENCES"):
 # 
 if input_text.strip():
     with st.spinner("  Running ADMET  CYP  SA  AI analysis..."):
-        data = analyze(input_text.split(","))
+        try:
+    data = analyze(input_text.split(","))
+except Exception as e:
+    st.error(f"Analysis error: {e}")
+    data = []
 
     if not data:
         st.error("No valid SMILES found. Please check input.")
