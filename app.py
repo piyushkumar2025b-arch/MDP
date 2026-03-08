@@ -2300,11 +2300,7 @@ except Exception as e:
         else:
             c3d1, c3d2 = st.columns([1.5, 1])
             with c3d1:
-                view = py3Dmol.view(width=800, height=500)
-                view.addModel(res_3d["_conf"], "mol")
-                view.setStyle({'stick': {'colorscheme': 'goldCarbon'}})
-                view.zoomTo()
-                showmol(view, height=500, width=800)
+                st.info("3D viewer disabled on cloud. Run locally to see 3D structure.")
             with c3d2:
                 html_str = """
                 <div class="card" style="margin-bottom:14px">
