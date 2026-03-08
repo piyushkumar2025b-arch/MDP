@@ -59,9 +59,9 @@ st.markdown("""
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=IBM+Plex+Mono:wght@300;400;500;600&family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300&display=swap');
 
 :root {
-  --bg:        #04070a;
-  --bg2:       #080c14;
-  --bg3:       #0c121d;
+  --bg:        #f8f9fc;
+  --bg2:       #ffffff;
+  --bg3:       #eef1f7;
   --glass:     rgba(255,255,255,0.04);
   --amber:     #ff9f1c;
   --amber2:    #ffbf69;
@@ -93,7 +93,7 @@ st.markdown("""
 html, body, [class*="css"] {
   font-family: 'IBM Plex Mono', monospace;
   background: var(--bg) !important;
-  color: var(--ice);
+  color:#1a1a2e;
 }
 
 /*  BACKGROUND TEXTURE  */
@@ -380,7 +380,7 @@ html, body, [class*="css"] {
 }
 .dv {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: .7rem; color: var(--ice); text-align: right; font-weight: 500;
+  font-size: .7rem; color:#1a1a2e; text-align: right; font-weight: 500;
 }
 .ok   { color: var(--green) !important; }
 .warn { color: var(--yellow) !important; }
@@ -504,7 +504,7 @@ html, body, [class*="css"] {
 }
 .ana-n { font-family:'IBM Plex Mono',monospace; font-size:.52rem; letter-spacing:2px; color:var(--muted2); margin-bottom:4px; }
 .ana-ch { font-family:'Playfair Display',serif; font-size:.85rem; font-weight:600; color:var(--amber2); margin-bottom:4px; }
-.ana-sm { font-family:'IBM Plex Mono',monospace; font-size:.6rem; color:var(--ice); opacity:.65; word-break:break-all; margin:4px 0; }
+.ana-sm { font-family:'IBM Plex Mono',monospace; font-size:.6rem; color:#1a1a2e; opacity:.65; word-break:break-all; margin:4px 0; }
 .ana-ex { font-family:'IBM Plex Mono',monospace; font-size:.6rem; color:var(--muted); line-height:1.5; }
 
 /* 
@@ -542,7 +542,7 @@ html, body, [class*="css"] {
 .rrow { display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid rgba(200,222,255,.03); font-size:.7rem; }
 .rrow:last-child { border:none; }
 .rk { color:var(--muted2); font-family:'IBM Plex Mono',monospace; }
-.rv { color:var(--ice); }
+.rv { color:#1a1a2e; }
 
 /* 
    REFERENCE BOX
@@ -1083,9 +1083,9 @@ def mol_img_b64(mol, sz=(280,210)):
 def pubchem(smiles):
     try:
         enc=urllib.parse.quote(smiles)
-        r=requests.get(f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/smiles/{enc}/property/IUPACName,MolecularFormula/JSON",timeout=4)
-        if r.status_code==200:
-            p=r.json()["PropertyTable"]["Properties"][0]
+        resp=requests.get(f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/smiles/{enc}/property/IUPACName,MolecularFormula/JSON",timeout=4)
+        if resp.status_code==200:
+            p=resp.json()["PropertyTable"]["Properties"][0]
             return p.get("IUPACName",""),p.get("MolecularFormula","")
     except: pass
     return "",""
@@ -1101,7 +1101,7 @@ def scaffold(smiles):
 @st.cache_data(show_spinner=False)
 def ai_explain(data_str):
     try:
-        r=requests.post("https://api.anthropic.com/v1/messages",
+        resp=requests.post("https://api.anthropic.com/v1/messages",
             headers={"Content-Type":"application/json"},
             json={"model":"claude-sonnet-4-20250514","max_tokens":700,
                   "messages":[{"role":"user","content":
@@ -1109,34 +1109,34 @@ def ai_explain(data_str):
                     f"(1) overall lead assessment, (2) key ADMET strengths, "
                     f"(3) key liabilities, (4) one structural improvement. "
                     f"No markdown, no lists. DATA: {data_str}"}]},timeout=15)
-        if r.status_code==200: return r.json()["content"][0]["text"]
+        if resp.status_code==200: return resp.json()["content"][0]["text"]
     except: pass
     return "AI analysis unavailable."
 
 @st.cache_data(show_spinner=False)
 def ai_analogues(smiles, props):
     try:
-        r=requests.post("https://api.anthropic.com/v1/messages",
+        resp=requests.post("https://api.anthropic.com/v1/messages",
             headers={"Content-Type":"application/json"},
             json={"model":"claude-sonnet-4-20250514","max_tokens":900,
                   "messages":[{"role":"user","content":
                     f"Medicinal chemist  suggest 3 structural analogues improving drug-likeness. "
                     f"SMILES: {smiles} PROFILE: {props} "
                     f"Return ONLY a JSON array with 3 objects, keys: smiles, change, expected_improvement. No other text."}]},timeout=18)
-        if r.status_code==200: return r.json()["content"][0]["text"]
+        if resp.status_code==200: return resp.json()["content"][0]["text"]
     except: pass
     return "[]"
 
 @st.cache_data(show_spinner=False)
 def ai_repurpose(smiles, props):
     try:
-        r=requests.post("https://api.anthropic.com/v1/messages",
+        resp=requests.post("https://api.anthropic.com/v1/messages",
             headers={"Content-Type":"application/json"},
             json={"model":"claude-sonnet-4-20250514","max_tokens":500,
                   "messages":[{"role":"user","content":
                     f"Pharmacologist  3 sentences on likely therapeutic indications for this molecule. "
                     f"Cite structural reasons. No markdown. SMILES: {smiles} PROPS: {props}"}]},timeout=12)
-        if r.status_code==200: return r.json()["content"][0]["text"]
+        if resp.status_code==200: return resp.json()["content"][0]["text"]
     except: pass
     return "Repurposing analysis unavailable."
 
@@ -1333,7 +1333,7 @@ def analyze(smiles_list):
 # 
 PT = dict(
     paper_bgcolor="#0c1220",
-    plot_bgcolor="#080c14",
+    plot_bgcolor="#ffffff",
     font=dict(family="IBM Plex Mono, monospace", color="rgba(200,222,255,0.45)", size=10),
     xaxis=dict(gridcolor="rgba(245,166,35,0.06)", zeroline=False,
                tickfont=dict(size=9, family="IBM Plex Mono")),
@@ -1412,7 +1412,7 @@ def fig_boiled_egg(data):
             name=d["ID"],text=[f"  {d['ID']}"],
             textfont=dict(size=9,color=c,family="IBM Plex Mono"),textposition="middle right",
             marker=dict(size=13+d["LeadScore"]/18,color=c,symbol="diamond",
-                        line=dict(color="#080c14",width=1.5),opacity=.92),
+                        line=dict(color="#ffffff",width=1.5),opacity=.92),
             hovertemplate=(f"<b>{d['ID']}</b><br>tPSA: {d['_tp']:.1f} A2<br>"
                 f"LogP: {d['_lp']:.2f}<br>Grade: {d['Grade']}<br>"
                 f"Lead Score: {d['LeadScore']}<br>QED: {d['_qed']:.3f}<br>"
@@ -1432,9 +1432,9 @@ def fig_similarity(data):
     mat=np.array([[DataStructs.TanimotoSimilarity(fps[i],fps[j]) for j in range(n)] for i in range(n)])
     ids=[d["ID"] for d in data]
     fig=go.Figure(go.Heatmap(z=mat,x=ids,y=ids,
-        colorscale=[[0,"#080c14"],[.3,"#111b2e"],[.6,"#7c4a00"],[1,"#f5a623"]],
+        colorscale=[[0,"#ffffff"],[.3,"#111b2e"],[.6,"#7c4a00"],[1,"#f5a623"]],
         text=[[f"{mat[i][j]:.2f}" for j in range(n)] for i in range(n)],
-        texttemplate="%{text}",textfont=dict(size=10,family="IBM Plex Mono",color="#080c14"),
+        texttemplate="%{text}",textfont=dict(size=10,family="IBM Plex Mono",color="#ffffff"),
         zmin=0,zmax=1,showscale=True,
         colorbar=dict(tickfont=dict(size=8,color="rgba(245,166,35,0.5)"),bgcolor="rgba(0,0,0,0)")))
     fig.update_layout(**PT,
@@ -1484,7 +1484,7 @@ def fig_pca(data, is_3d=False):
                 textfont=dict(size=9,color=c),
                 marker=dict(size=8, color=d["LeadScore"], 
                             colorscale=[[0,"#ff5c5c"],[.5,"#f5a623"],[1,"#4ade80"]],
-                            line=dict(color="#080c14", width=2), symbol="diamond"),
+                            line=dict(color="#ffffff", width=2), symbol="diamond"),
                 hovertemplate=f"<b>{d['ID']}</b><br>Lead: {d['LeadScore']}<extra></extra>"))
         fig.update_layout(**PT, height=600, scene=dict(
             xaxis=dict(title="PC1", backgroundcolor="rgba(0,0,0,0)", gridcolor="rgba(255,255,255,0.05)"),
@@ -1502,7 +1502,7 @@ def fig_pca(data, is_3d=False):
             textfont=dict(size=9,color=c,family="IBM Plex Mono"),textposition="middle right",
             marker=dict(size=15,color=d["LeadScore"],
                         colorscale=[[0,"#ff5c5c"],[.5,"#f5a623"],[1,"#4ade80"]],cmin=0,cmax=100,
-                        line=dict(color="#080c14",width=1.5),symbol="diamond"),
+                        line=dict(color="#ffffff",width=1.5),symbol="diamond"),
             hovertemplate=f"<b>{d['ID']}</b><br>Lead: {d['LeadScore']}<extra></extra>",showlegend=False))
     fig.update_layout(**PT,height=400,margin=dict(l=60,r=40,t=20,b=60),
         xaxis=dict(title="PC1",gridcolor="rgba(245,166,35,0.06)",zeroline=False,
@@ -1516,7 +1516,7 @@ def fig_qed_sa(data):
     # QED
     fig.add_trace(go.Bar(x=[d["ID"] for d in data],y=[d["_qed"] for d in data],
         name="QED",marker=dict(color=[score_hex(d["_qed"]*100) for d in data],
-            opacity=.8,line=dict(color="#080c14",width=1)),
+            opacity=.8,line=dict(color="#ffffff",width=1)),
         text=[f"{d['_qed']:.3f}" for d in data],textposition="outside",
         textfont=dict(size=8,family="IBM Plex Mono",color="rgba(200,222,255,0.5)"),
         hovertemplate="<b>%{x}</b><br>QED: %{y:.3f}<extra></extra>"))
@@ -1532,7 +1532,7 @@ def fig_qed_sa(data):
 def fig_sa(data):
     sc=[score_hex(max(0,100-(d["_sa"]-1)/9*100)) for d in data]
     fig=go.Figure(go.Bar(x=[d["ID"] for d in data],y=[d["_sa"] for d in data],
-        marker=dict(color=sc,line=dict(color="#080c14",width=1)),
+        marker=dict(color=sc,line=dict(color="#ffffff",width=1)),
         text=[f"{d['SA_Score']}  {d['SA_Label']}" for d in data],textposition="outside",
         textfont=dict(size=8,family="IBM Plex Mono",color="rgba(200,222,255,0.5)"),
         hovertemplate="<b>%{x}</b><br>SA Score: %{y:.2f}<extra></extra>"))
@@ -1567,7 +1567,7 @@ def fig_elem(elems,cpd_id):
           "S":"#fcd34d","F":"#4ade80","Cl":"#fb923c","Br":"#e879f9","P":"#67e8f9"}
     c=[cols.get(l,"#475569") for l in lb]
     fig=go.Figure(go.Pie(labels=lb,values=vl,hole=.58,
-        marker=dict(colors=c,line=dict(color="#080c14",width=2)),
+        marker=dict(colors=c,line=dict(color="#ffffff",width=2)),
         textfont=dict(size=9,family="IBM Plex Mono"),
         hovertemplate="<b>%{label}</b>: %{value} atoms (%{percent})<extra></extra>"))
     fig.update_layout(paper_bgcolor="rgba(0,0,0,0)",showlegend=True,
@@ -1584,7 +1584,7 @@ def fig_approved(res):
     fig=go.Figure()
     c=score_hex(res["LeadScore"])
     fig.add_trace(go.Bar(name=res["ID"],x=props,y=cv,
-        marker=dict(color=c,opacity=.7,line=dict(color="#080c14",width=1)),
+        marker=dict(color=c,opacity=.7,line=dict(color="#ffffff",width=1)),
         text=[f"{v:.1f}" for v in cv],textposition="outside",
         textfont=dict(size=9,family="IBM Plex Mono",color="rgba(200,222,255,0.5)")))
     fig.add_trace(go.Bar(name="Approved median",x=props,y=mv,
@@ -1610,8 +1610,8 @@ def html_export(data):
 <title>ChemoFilter v50000 Report</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=IBM+Plex+Mono:wght@300;400;500&display=swap');
-:root{{--bg:#080c14;--bg2:#0c1220;--amber:#f5a623;--ice:#c8deff;--border:rgba(245,166,35,.14);}}
-body{{font-family:'IBM Plex Mono',monospace;background:var(--bg);color:var(--ice);padding:48px;
+:root{{--bg:#ffffff;--bg2:#0c1220;--amber:#f5a623;--ice:#1a1a2e;--border:rgba(245,166,35,.14);}}
+body{{font-family:'IBM Plex Mono',monospace;background:var(--bg);color:#1a1a2e;padding:48px;
 background-image:repeating-linear-gradient(0deg,transparent,transparent 79px,rgba(245,166,35,.02) 80px),
 repeating-linear-gradient(90deg,transparent,transparent 79px,rgba(245,166,35,.02) 80px);}}
 h1{{font-family:'Playfair Display',serif;font-size:3.5rem;font-weight:900;letter-spacing:-1px;
@@ -1620,7 +1620,7 @@ background:linear-gradient(135deg,#ffc85a,#f5a623,#d4a017);-webkit-background-cl
 table{{width:100%;border-collapse:collapse;font-size:.65rem;margin-top:12px;}}
 th{{background:rgba(245,166,35,.06);color:rgba(245,166,35,.55);padding:10px 8px;text-align:left;
 letter-spacing:1px;font-size:.56rem;border-bottom:1px solid rgba(245,166,35,.1);}}
-td{{padding:8px;border-bottom:1px solid rgba(200,222,255,.03);color:var(--ice);}}
+td{{padding:8px;border-bottom:1px solid rgba(200,222,255,.03);color:#1a1a2e;}}
 tr:hover td{{background:rgba(245,166,35,.025);}}
 .foot{{margin-top:50px;color:rgba(245,166,35,.15);font-size:.48rem;letter-spacing:3px;
 text-align:center;border-top:1px solid rgba(245,166,35,.07);padding-top:22px;}}
@@ -1774,7 +1774,7 @@ with st.sidebar.expander("SCIENTIFIC REFERENCES"):
 #  ANALYSIS
 # 
 if input_text.strip():
-    with st.spinner("  Running ADMET  CYP  SA  AI analysis..."):
+    with st.spinner("  Running ADMET analysis..."):
         try:
             data = analyze(input_text.split(","))
         except Exception as e:
@@ -1943,7 +1943,7 @@ if input_text.strip():
         st.markdown("""
         <div class="card" style="padding:0; overflow:hidden; border:none; background:transparent">
             <!-- HERO SECTION -->
-            <div style="background:linear-gradient(135deg, #020617 0%, #0f172a 100%); padding:80px 50px; border-radius:30px; border:3px solid var(--gold); position:relative; box-shadow:0 20px 50px rgba(0,0,0,0.5)">
+            <div style="background:linear-gradient(135deg, #f0f4ff 0%, #e8eef8 100%); padding:80px 50px; border-radius:30px; border:3px solid var(--gold); position:relative; box-shadow:0 20px 50px rgba(0,0,0,0.5)">
                 <div style="position:absolute; top:30px; right:50px; font-family:IBM Plex Mono; color:var(--gold); font-size:1rem; letter-spacing:5px">SYSTEM: OMNIPOTENT</div>
                 <div style="font-family:'Playfair Display'; font-size:6rem; font-weight:900; color:white; margin-bottom:10px; line-height:1">
                     Chemo<span style="color:var(--gold)">Filter</span>
@@ -2070,7 +2070,7 @@ if input_text.strip():
             </div>
         </div>
 
-        <div style='margin:100px 0; padding:60px; background:linear-gradient(to right, #020617, #1e293b, #020617); border-radius:40px; text-align:center; border:2px solid var(--gold); box-shadow:0 0 60px rgba(212,175,55,0.1)'>
+        <div style='margin:100px 0; padding:60px; background:linear-gradient(to right, #f0f4ff, #1e293b, #f0f4ff); border-radius:40px; text-align:center; border:2px solid var(--gold); box-shadow:0 0 60px rgba(212,175,55,0.1)'>
             <h1 style="color:white; font-family:'Playfair Display'; font-style:italic; font-weight:400; font-size:4rem; line-height:1.2">"Targeted certainty in a multiverse of chemical possibilities."</h1>
             <p style='color:var(--gold); font-family:IBM Plex Mono; margin-top:30px; font-size:1.2rem; letter-spacing:10px; font-weight:700'>OMEGA PROTOCOL ENGAGED - SYSTEM OMNIPOTENT</p>
             <div style='margin-top:50px'>
@@ -2764,7 +2764,7 @@ if input_text.strip():
         sv = sres["_v200"]
 
         st.markdown(f"""
-        <div class="card" style="margin-bottom:28px; background:radial-gradient(circle at top right, #1e293b, #020617); border:2px solid var(--gold)">
+        <div class="card" style="margin-bottom:28px; background:radial-gradient(circle at top right, #1e293b, #f0f4ff); border:2px solid var(--gold)">
            <div style="padding:30px; display:flex; justify-content:space-between; align-items:center">
               <div>
                  <div style="font-family:IBM Plex Mono; font-size:0.75rem; color:var(--gold); letter-spacing:5px">SINGULARITY SCORE</div>
@@ -2904,7 +2904,7 @@ if input_text.strip():
         cv = clres["_v1000"]
 
         st.markdown(f"""
-        <div class="card" style="margin-bottom:28px; background:linear-gradient(135deg, #020617, #1e293b); border:3px solid #67e8f9">
+        <div class="card" style="margin-bottom:28px; background:linear-gradient(135deg, #f0f4ff, #1e293b); border:3px solid #67e8f9">
            <div style="padding:35px; display:flex; justify-content:space-between; align-items:center">
               <div>
                  <div style="font-family:IBM Plex Mono; font-size:0.8rem; color:#67e8f9; letter-spacing:8px">CELESTIAL SCORE</div>
@@ -2970,7 +2970,7 @@ if input_text.strip():
         ov = ores["_v2000"]
 
         st.markdown(f"""
-        <div class="card" style="margin-bottom:28px; background:radial-gradient(circle at bottom left, #0f172a, #020617); border:3px solid var(--gold)">
+        <div class="card" style="margin-bottom:28px; background:radial-gradient(circle at bottom left, #e8eef8, #f0f4ff); border:3px solid var(--gold)">
            <div style="padding:40px; display:flex; justify-content:space-between; align-items:center">
               <div>
                  <div style="font-family:IBM Plex Mono; font-size:0.85rem; color:var(--gold); letter-spacing:10px">OMEGA-ZENITH SCORE</div>
@@ -3109,7 +3109,7 @@ if input_text.strip():
         av = ares["_v10000"]
 
         st.markdown(f"""
-        <div class="card" style="margin-bottom:28px; background:linear-gradient(135deg, #0f172a, #334155, #0f172a); border:4px solid var(--cyan); box-shadow:0 0 40px rgba(46,196,182,0.3)">
+        <div class="card" style="margin-bottom:28px; background:linear-gradient(135deg, #e8eef8, #334155, #e8eef8); border:4px solid var(--cyan); box-shadow:0 0 40px rgba(46,196,182,0.3)">
            <div style="padding:45px; display:flex; justify-content:space-between; align-items:center">
               <div>
                  <div style="font-family:IBM Plex Mono; font-size:1.1rem; color:var(--cyan); letter-spacing:20px">AETHER SCORE</div>
@@ -3162,7 +3162,7 @@ if input_text.strip():
         qv = qfres["_v10000"]["v25k"]
 
         st.markdown(f"""
-        <div class="card" style="margin-bottom:28px; background:radial-gradient(circle, #0f172a, #000); border:3px solid #8b5cf6">
+        <div class="card" style="margin-bottom:28px; background:radial-gradient(circle, #e8eef8, #000); border:3px solid #8b5cf6">
            <div style="padding:40px; display:flex; justify-content:space-between; align-items:center">
               <div>
                  <div style="font-family:IBM Plex Mono; font-size:1rem; color:#a78bfa; letter-spacing:10px">FLUX INDEX</div>
@@ -3257,7 +3257,7 @@ if input_text.strip():
         fto_status = "READY" if patent_hits == 0 else "CAUTION"
         
         st.markdown("""
-        <div class="card" style="margin-bottom:28px; background:linear-gradient(135deg, #020617, #0f172a); border:3px solid var(--gold)">
+        <div class="card" style="margin-bottom:28px; background:linear-gradient(135deg, #f0f4ff, #e8eef8); border:3px solid var(--gold)">
            <div style="padding:40px; display:flex; justify-content:space-between; align-items:center">
               <div>
                  <div style="font-family:'IBM Plex Mono'; font-size:1rem; color:var(--gold); letter-spacing:10px">NOVELTY INDEX</div>
@@ -3308,7 +3308,7 @@ if input_text.strip():
         evv = evres["_v10000"]["v1M"]
 
         st.markdown(f"""
-        <div class="card" style="margin-bottom:28px; background:linear-gradient(135deg, #0f172a, #1e293b); border:3px solid var(--gold)">
+        <div class="card" style="margin-bottom:28px; background:linear-gradient(135deg, #e8eef8, #1e293b); border:3px solid var(--gold)">
            <div style="padding:40px; display:flex; justify-content:space-between; align-items:center">
               <div>
                  <div style="font-family:IBM Plex Mono; font-size:1rem; color:var(--gold); letter-spacing:10px">OMNIPOTENT INDEX</div>
